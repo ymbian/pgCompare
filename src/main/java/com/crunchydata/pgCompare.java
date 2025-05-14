@@ -58,6 +58,11 @@ public class pgCompare {
     private static Connection connTarget;
 
     public static void main(String[] args) {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         // Command Line Options
         cmd = parseCommandLine(args);
@@ -165,6 +170,7 @@ public class pgCompare {
             case "mysql" -> dbMySQL.getConnection(Props, destRole);
             case "mssql" -> dbMSSQL.getConnection(Props, destRole);
             case "db2" -> dbDB2.getConnection(Props, destRole);
+            case "tdsql" -> dbTDSQL.getConnection(Props, destRole);
             default -> dbPostgres.getConnection(Props, destRole, THREAD_NAME);
         };
 

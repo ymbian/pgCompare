@@ -34,6 +34,7 @@ import static com.crunchydata.services.dbMariaDB.columnValueMapMariaDB;
 import static com.crunchydata.services.dbMySQL.columnValueMapMySQL;
 import static com.crunchydata.services.dbOracle.columnValueMapOracle;
 import static com.crunchydata.services.dbPostgres.columnValueMapPostgres;
+import static com.crunchydata.services.dbTDSQL.columnValueMapTDSQL;
 import static com.crunchydata.util.DataUtility.*;
 import static com.crunchydata.util.SQLConstantsDB2.SQL_DB2_SELECT_COLUMNS;
 import static com.crunchydata.util.SQLConstantsMSSQL.SQL_MSSQL_SELECT_COLUMNS;
@@ -41,6 +42,7 @@ import static com.crunchydata.util.SQLConstantsMYSQL.SQL_MYSQL_SELECT_COLUMNS;
 import static com.crunchydata.util.SQLConstantsMariaDB.SQL_MARIADB_SELECT_COLUMNS;
 import static com.crunchydata.util.SQLConstantsOracle.SQL_ORACLE_SELECT_COLUMNS;
 import static com.crunchydata.util.SQLConstantsPostgres.SQL_POSTGRES_SELECT_COLUMNS;
+import static com.crunchydata.util.SQLConstantsTDSQL.SQL_TDSQL_SELECT_COLUMNS;
 import static com.crunchydata.util.SQLConstantsRepo.SQL_REPO_DCTABLECOLUMNMAP_BYORIGINALIAS;
 
 /**
@@ -151,6 +153,7 @@ public class ColumnUtility {
             case "mysql" -> SQL_MYSQL_SELECT_COLUMNS;
             case "mssql" -> SQL_MSSQL_SELECT_COLUMNS;
             case "db2" -> SQL_DB2_SELECT_COLUMNS;
+            case "tdsql" -> SQL_TDSQL_SELECT_COLUMNS;
             default -> SQL_POSTGRES_SELECT_COLUMNS;
         };
 
@@ -184,6 +187,7 @@ public class ColumnUtility {
                             case "mysql" -> columnValueMapMySQL(Props, column);
                             case "mssql" -> columnValueMapMSSQL(Props, column);
                             case "db2" -> columnValueMapDB2(Props, column);
+                            case "tdsql" -> columnValueMapTDSQL(Props, column);
                             default -> columnValueMapPostgres(Props, column);
                         };
 
