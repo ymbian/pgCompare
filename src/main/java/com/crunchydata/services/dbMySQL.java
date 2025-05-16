@@ -88,7 +88,7 @@ public class dbMySQL {
                     break;
                 default:
                     if (Props.getProperty("number-cast").equals("notation")) {
-                        colExpression = "coalesce(if(" + columnName + "=0,'0.0000000000e+00',concat(if(" + columnName + "<0, '-', ''),format(abs(" + columnName + ")/pow(10, floor(log10(abs(" + columnName + ")))), 10),'e',if(floor(log10(abs(" + columnName + ")))>=0,'+','-'),lpad(replace(replace(convert(FORMAT(floor(log10(abs(" + columnName + "))), 2)/100,char),'0.',''),'-',''),2,'0'))),' ')";
+                        colExpression = "coalesce(if(" + columnName + "=0,'0.0000000000e+00',concat(if(" + columnName + "<0, '-', ''),format(abs(" + columnName + ")/pow(10, floor(log10(abs(" + columnName + ")))), 10),'e',if(floor(log10(abs(" + columnName + ")))>=0,'+','-'),lpad(cast(floor(log10(abs(" + columnName + "))) as char),2,'0'))),' ')";
                     } else {
                         colExpression = "coalesce(if(instr(convert(" + columnName + ",char),'.')>0,concat(if(" + columnName + "<0,'-',''),lpad(substring_index(convert(abs(" + columnName + "),char),'.',1),22,'0'),'.',rpad(substring_index(convert(" + columnName + ",char),'.',-1),22,'0')),concat(if(" + columnName + "<0,'-',''),lpad(convert(" + columnName + ",char),22,'0'),'.',rpad('',22,'0'))),' ')";
                     }
