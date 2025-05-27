@@ -56,6 +56,7 @@ public class pgCompare {
     private static Connection connSource;
     private static long startStopWatch;
     private static Connection connTarget;
+    private static Double sampleRatio = 1.0; // 默认全量比对
 
     public static void main(String[] args) {
         try {
@@ -117,6 +118,13 @@ public class pgCompare {
                 Logging.write("severe", THREAD_NAME, String.format("Error closing connection to repository: %s",e.getMessage()));
             }
             System.exit(0);
+        }
+        if (cmd.hasOption("sample")) {
+            sampleRatio = Double.parseDouble(cmd.getOptionValue("sample"));
+            if (sampleRatio <= 0 || sampleRatio >= 1) {
+                System.out.println("Sample ratio must be in (0,1).");
+                System.exit(1);
+            }
         }
 
 
@@ -236,7 +244,9 @@ public class pgCompare {
                     rpc.deleteDataCompare(connRepo, dct.getTid(), dct.getBatchNbr());
                 }
 
-                JSONObject actionResult = ReconcileController.reconcileData(Props, connRepo, connSource, connTarget, startStopWatch, check, dct, sourceTableMap, targetTableMap);
+              //  JSONObject actionResult = ReconcileController.reconcileData(Props, connRepo, connSource, connTarget, startStopWatch, check, dct, sourceTableMap, targetTableMap);
+
+                JSONObject actionResult = ReconcileController.reconcileData(Props, connRepo, connSource, connTarget, startStopWatch, check, dct, sourceTableMap, targetTableMap, sampleRatio);
 
                 rpc.completeTableHistory(connRepo, dct.getTid(), "reconcile", dct.getBatchNbr(), 0, actionResult.toString());
 
@@ -281,7 +291,7 @@ public class pgCompare {
         options.addOption(Option.builder("r").longOpt("report").argName("report").hasArg(true).desc("Generate report").build());
         options.addOption(Option.builder("t").longOpt("table").argName("table").hasArg(true).desc("Limit to specified table").build());
         options.addOption(Option.builder("v").longOpt("version").argName("version").hasArg(false).desc("Version").build());
-
+        options.addOption(Option.builder("s").longOpt("sample").argName("sample").hasArg(true).desc("Sample ratio for compare, e.g. 0.1 for 10%").build());
         CommandLineParser parser = new DefaultParser();
         try {
             CommandLine cmd = parser.parse(options, args);

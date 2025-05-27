@@ -22,6 +22,10 @@ public interface SQLConstantsRepo {
     //
     String REPO_DDL_SCHEMA="CREATE SCHEMA IF NOT EXISTS  %s AUTHORIZATION %s";
 
+    String REPO_SAMPLE_PK = """
+                CREATE TABLE sample_pk(pk INT PRIMARY KEY )
+                """;
+
     // DC_PROJECT
     String REPO_DDL_DC_PROJECT = """
             CREATE TABLE dc_project (
@@ -194,6 +198,8 @@ public interface SQLConstantsRepo {
     //
     // Repository SQL - Compare Task SQL
     //
+
+    String SQL_REPO_DELETE_SAMPLE_PK = "DELETE FROM sample_pk";
     String SQL_REPO_CLEARMATCH = """
                 WITH ds AS (DELETE FROM dc_source s
                             WHERE EXISTS

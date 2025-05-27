@@ -382,6 +382,7 @@ public class RepoController {
             dbCommon.simpleExecute(conn, "VACUUM dc_table_map");
             dbCommon.simpleExecute(conn, "VACUUM dc_table_column");
             dbCommon.simpleExecute(conn, "VACUUM dc_table_column_map");
+            dbCommon.simpleExecute(conn, "VACUUM sample_pk");
 
             conn.setAutoCommit(autoCommit);
 

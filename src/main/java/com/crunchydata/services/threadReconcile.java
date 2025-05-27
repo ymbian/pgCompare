@@ -154,6 +154,7 @@ public class threadReconcile extends Thread {
 
             DataCompare[] dc = new DataCompare[batchCommitSize];
 
+
             while (rs.next()) {
                 columnValue.setLength(0);
 

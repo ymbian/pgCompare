@@ -42,6 +42,7 @@ public class dbRepository {
         dbCommon.simpleUpdate(conn,String.format(REPO_DDL_SCHEMA,Props.getProperty("repo-schema"),Props.getProperty("repo-user")),binds, true);
 
         // Create Tables
+        dbCommon.simpleUpdate(conn,REPO_SAMPLE_PK,binds,true);
         dbCommon.simpleUpdate(conn,REPO_DDL_DC_PROJECT, binds, true);
         dbCommon.simpleUpdate(conn,REPO_DDL_DC_RESULT, binds, true);
         dbCommon.simpleUpdate(conn,REPO_DDL_DC_SOURCE, binds, true);
