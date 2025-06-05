@@ -76,11 +76,12 @@ public class Settings {
          }
 
         // Trim all values in the Properties object
-        configProperties.forEach((key, value) -> {
+        for (Object key : configProperties.keySet()) {
+            Object value = configProperties.get(key);
             if (value instanceof String) {
                 configProperties.setProperty((String) key, ((String) value).trim());
             }
-        });
+        }
 
         Props = setEnvironment(configProperties);
     }
@@ -156,11 +157,13 @@ public class Settings {
      */
     public static Properties setEnvironment (Properties prop) {
 
-        System.getenv().forEach((k, v) -> {
+        for (java.util.Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            String k = entry.getKey();
+            String v = entry.getValue();
             if (k.contains("PGCOMPARE_")) {
                 prop.setProperty(k.replace("PGCOMPARE_","").replace("_","-").toLowerCase(),v);
             }
-        });
+        }
 
         return prop;
 

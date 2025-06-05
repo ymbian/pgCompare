@@ -25,16 +25,15 @@ public class Reporter {
             FileWriter writer = new FileWriter(filePath);
 
             writer.write(String.format("<html><head><title>%s</title>",title));
-            writer.write("""
-                <style>
-                    table {width: 100%; border-collapse: collapse;} th,
-                    td {border: 1px solid black; padding: 8px; text-align: left;}
-                    th {background-color: #f2f2f2;}
-                    .right-align { text-align: right; }
-                    .left-align  { text-align: left;}
-                    .center-align { text-align: center;}
-                </style>
-                """);
+            writer.write(
+                "<style>\n" +
+                "    table {width: 100%; border-collapse: collapse;} th,\n" +
+                "    td {border: 1px solid black; padding: 8px; text-align: left;}\n" +
+                "    th {background-color: #f2f2f2;}\n" +
+                "    .right-align { text-align: right; }\n" +
+                "    .left-align  { text-align: left;}\n" +
+                "    .center-align { text-align: center;}\n" +
+                "</style>");
             writer.write("</head><body>");
 
             for (int i = 0; i < report.length(); i++) {

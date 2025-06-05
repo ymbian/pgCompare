@@ -124,39 +124,60 @@ public class ReconcileController {
             // Set Source & Target Variables
             // For useDatabaseHash, we do not want to use has if we are performing a recheck (check=true) or
             // use database hash has been specified for a normal compare run.
-            dctmSource.setCompareSQL(switch (Props.getProperty("source-type")) {
-                case "postgres" ->
-                        dbPostgres.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
-                case "oracle" ->
-                        dbOracle.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
-                case "mariadb" ->
-                        dbMariaDB.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
-                case "mysql" ->
-                        dbMySQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
-                case "mssql" ->
-                        dbMSSQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
-                case "db2" ->
-                        dbDB2.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
-                default -> "";
-            });
+            String sourceCompareSQL;
+            switch (Props.getProperty("source-type")) {
+                case "postgres":
+                    sourceCompareSQL = dbPostgres.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
+                    break;
+                case "oracle":
+                    sourceCompareSQL = dbOracle.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
+                    break;
+                case "mariadb":
+                    sourceCompareSQL = dbMariaDB.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
+                    break;
+                case "mysql":
+                    sourceCompareSQL = dbMySQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
+                    break;
+                case "mssql":
+                    sourceCompareSQL = dbMSSQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
+                    break;
+                case "db2":
+                    sourceCompareSQL = dbDB2.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("source-database-hash")), dctmSource, ciSource);
+                    break;
+                default:
+                    sourceCompareSQL = "";
+                    break;
+            }
+            dctmSource.setCompareSQL(sourceCompareSQL);
 
-            dctmTarget.setCompareSQL(switch (Props.getProperty("target-type")) {
-                case "postgres" ->
-                        dbPostgres.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
-                case "oracle" ->
-                        dbOracle.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
-                case "mariadb" ->
-                        dbMariaDB.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
-                case "mysql" ->
-                        dbMySQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
-                case "mssql" ->
-                        dbMSSQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
-                case "db2" ->
-                        dbDB2.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
-                case "tdsql" ->
-                        dbTDSQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
-                default -> "";
-            });
+            String targetCompareSQL;
+            switch (Props.getProperty("target-type")) {
+                case "postgres":
+                    targetCompareSQL = dbPostgres.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
+                    break;
+                case "oracle":
+                    targetCompareSQL = dbOracle.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
+                    break;
+                case "mariadb":
+                    targetCompareSQL = dbMariaDB.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
+                    break;
+                case "mysql":
+                    targetCompareSQL = dbMySQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
+                    break;
+                case "mssql":
+                    targetCompareSQL = dbMSSQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
+                    break;
+                case "db2":
+                    targetCompareSQL = dbDB2.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
+                    break;
+                case "tdsql":
+                    targetCompareSQL = dbTDSQL.buildLoadSQL(!check && Boolean.parseBoolean(Props.getProperty("target-database-hash")), dctmTarget, ciTarget);
+                    break;
+                default:
+                    targetCompareSQL = "";
+                    break;
+            }
+            dctmTarget.setCompareSQL(targetCompareSQL);
 
             Logging.write("info", THREAD_NAME, String.format("(source) Compare SQL: %s", dctmSource.getCompareSQL()));
             Logging.write("info", THREAD_NAME, String.format("(target) Compare SQL: %s", dctmTarget.getCompareSQL()));
@@ -166,7 +187,7 @@ public class ReconcileController {
                 result.put("checkResult", checkResult);
             } else {
                 // Execute Compare SQL
-                if (ciTarget.pkList.isBlank() || ciTarget.pkList.isEmpty() || ciSource.pkList.isBlank() || ciSource.pkList.isEmpty()) {
+                if (ciTarget.pkList.trim().isEmpty() || ciTarget.pkList.isEmpty() || ciSource.pkList.trim().isEmpty() || ciSource.pkList.isEmpty()) {
                     Logging.write("warning", THREAD_NAME, String.format("Table %s has no Primary Key, skipping reconciliation", dctmTarget.getTableName()));
                     result.put("status", "skipped");
                     result.put("compareStatus", "skipped");
@@ -339,6 +360,8 @@ public class ReconcileController {
         String sampleFrom;
         String sourceTableName = ShouldQuoteString(dctmSource.isSchemaPreserveCase(), dctmSource.getSchemaName()) + "." + ShouldQuoteString(dctmSource.isTablePreserveCase(), dctmSource.getTableName());
         String targetTableName = ShouldQuoteString(dctmTarget.isSchemaPreserveCase(), dctmTarget.getSchemaName()) + "." + ShouldQuoteString(dctmTarget.isTablePreserveCase(), dctmSource.getTableName());
+        Statement sourcePs=null;
+        Statement targetPs=null;
 
         try {
             if ("mssql".equalsIgnoreCase(sourceType)) {
@@ -347,42 +370,39 @@ public class ReconcileController {
                     Logging.write("severe", "mssql", String.format("(%s) Cannot connect to database"));
                     System.exit(1);
                 }
-                String getSourceCountSql = "select count(*) from " + sourceTableName;
-                PreparedStatement sourcePs = sampleSourceConnection.prepareStatement(getSourceCountSql);
-                ResultSet sourceTotalRowsResultSet = sourcePs.executeQuery();
-                sourceRows = sourceTotalRowsResultSet.getLong(1);
+
             } else if ("mysql".equalsIgnoreCase(sourceType)) {
                 sampleSourceConnection = dbMySQL.getConnection(Props, "source");
                 if (sampleSourceConnection == null) {
                     Logging.write("severe", "mssql", String.format("(%s) Cannot connect to database"));
                     System.exit(1);
                 }
-                String getSourceCountSql = "select count(*) from " + sourceTableName;
-                PreparedStatement sourcePs = sampleSourceConnection.prepareStatement(getSourceCountSql);
-                ResultSet sourceTotalRowsResultSet = sourcePs.executeQuery();
+            }
+            String getSourceCountSql = "select count(*) from " + sourceTableName;
+            sourcePs = sampleSourceConnection.createStatement();
+            ResultSet sourceTotalRowsResultSet = sourcePs.executeQuery(getSourceCountSql);
+            while(sourceTotalRowsResultSet.next()) {
                 sourceRows = sourceTotalRowsResultSet.getLong(1);
             }
 
-            if ("mssql".equalsIgnoreCase(targetType)) {
-                sampleTargetConnection = dbMSSQL.getConnection(Props, "target");
+            if ("gaussdb".equalsIgnoreCase(targetType)) {
+                sampleTargetConnection = dbPostgres.getConnection(Props, "target","sample");
                 if (sampleTargetConnection == null) {
                     Logging.write("severe", "mssql", String.format("(%s) Cannot connect to database"));
                     System.exit(1);
                 }
-                String getTargetCountSql = "select count(*) from " + targetTableName;
-                PreparedStatement targetPs = sampleTargetConnection.prepareStatement(getTargetCountSql);
-                ResultSet targetTotalRowsResultSet = targetPs.executeQuery();
-                targetRows = targetTotalRowsResultSet.getLong(1);
 
-            } else if ("mysql".equalsIgnoreCase(sourceType)) {
+            } else if ("tdsql".equalsIgnoreCase(targetType)) {
                 sampleTargetConnection = dbMySQL.getConnection(Props, "target");
                 if (sampleTargetConnection == null) {
                     Logging.write("severe", "mssql", String.format("(%s) Cannot connect to database"));
                     System.exit(1);
                 }
-                String getTargetCountSql = "select count(*) from " + targetTableName;
-                PreparedStatement targetPs = sampleTargetConnection.prepareStatement(getTargetCountSql);
-                ResultSet targetTotalRowsResultSet = targetPs.executeQuery();
+            }
+            String getTargetCountSql = "select count(*) from " + targetTableName;
+            targetPs = sampleTargetConnection.createStatement();
+            ResultSet targetTotalRowsResultSet = targetPs.executeQuery(getTargetCountSql);
+            while(targetTotalRowsResultSet.next()) {
                 targetRows = targetTotalRowsResultSet.getLong(1);
             }
             if (sourceRows >= targetRows) {
@@ -395,15 +415,18 @@ public class ReconcileController {
                 sampleFrom = "target";
             }
 
+            //todo add mysql and gaussdb for sample
             if ("mssql".equalsIgnoreCase(dbType)) {
-                sql = "select TOP " + sampleRatio * 100 + " PERCENT " + pk + " from " + tableName + " order by NEWID()";
+                sql = "select TOP " + sampleRatio * 100 + " PERCENT " + pk + " from %s order by NEWID()";
 
-            } else if ("mysql".equalsIgnoreCase(dbType)) {
-                sql = "select " + pk + " from " + ShouldQuoteString(dctmSource.isSchemaPreserveCase(), dctmSource.getSchemaName()) + "." + tableName + " WHERE RAND() < " + sampleRatio;
+            } else if ("tdsql".equalsIgnoreCase(dbType)) {
+                sql = "select " + pk + " from %s WHERE RAND() < " + sampleRatio;
             }
             if ("source".equalsIgnoreCase(sampleFrom)) {
+                sql = String.format(sql,ShouldQuoteString(dctmSource.isSchemaPreserveCase(), dctmSource.getSchemaName())+"."+ShouldQuoteString(dctmSource.isTablePreserveCase(),dctmSource.getTableName()));
                 sampleConnection = sampleSourceConnection;
             } else if ("target".equalsIgnoreCase(sampleFrom)) {
+                sql = String.format(sql,ShouldQuoteString(dctmTarget.isSchemaPreserveCase(), dctmTarget.getSchemaName())+"."+ShouldQuoteString(dctmTarget.isTablePreserveCase(),dctmTarget.getTableName()));
                 sampleConnection = sampleTargetConnection;
             }
             stmt = sampleConnection.prepareStatement(sql);

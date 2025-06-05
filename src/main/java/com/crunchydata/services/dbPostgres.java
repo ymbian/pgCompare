@@ -75,12 +75,15 @@ public class dbPostgres {
         String columnName = ShouldQuoteString(column.getBoolean("preserveCase"), column.getString("columnName"));
 
         if ( Arrays.asList(numericTypes).contains(column.getString("dataType").toLowerCase()) ) {
-            colExpression = switch (column.getString("dataType").toLowerCase()) {
-                case "float4", "float8" ->
-                        "coalesce(trim(to_char(" + columnName + ",'0.999999EEEE')),' ')";
-                default ->
-                        Props.getProperty("number-cast").equals("notation") ? "coalesce(trim(to_char(" + columnName + ",'0.9999999999EEEE')),' ')" : "coalesce(trim(to_char(trim_scale(" + columnName + "),'"+ Props.getProperty("standard-number-format") + "')),' ')";
-            };
+            switch (column.getString("dataType").toLowerCase()) {
+                case "float4":
+                case "float8":
+                    colExpression = "coalesce(trim(to_char(" + columnName + ",'0.999999EEEE')),' ')";
+                    break;
+                default:
+                    colExpression = Props.getProperty("number-cast").equals("notation") ? "coalesce(trim(to_char(" + columnName + ",'0.9999999999EEEE')),' ')" : "coalesce(trim(to_char(trim_scale(" + columnName + "),'"+ Props.getProperty("standard-number-format") + "')),' ')";
+                    break;
+            }
 
         } else if ( Arrays.asList(booleanTypes).contains(column.getString("dataType").toLowerCase()) ) {
             String booleanConvert = "case when coalesce(" + columnName + "::text,'0') = 'true' then 1 else 0 end";

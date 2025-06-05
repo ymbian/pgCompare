@@ -73,16 +73,15 @@ public class RepoController {
      */
     public String createStagingTable(Properties Props, Connection conn, String location, Integer tid, Integer threadNbr) {
         // Dynamic SQL
-        String sql = """
-                CREATE UNLOGGED TABLE dc_source (
-                    tid     int8 NOT NULL,
-                	pk_hash varchar(100) NULL,
-                	column_hash varchar(100) NULL,
-                	pk jsonb NULL,
-                	compare_result bpchar(1) NULL,
-                	CONSTRAINT dc_source_pk PRIMARY KEY (tid, pk_hash)
-                ) with (autovacuum_enabled=false, parallel_workers=
-                """ + Props.getProperty("stage-table-parallel") + ")";
+        String sql = 
+                "CREATE UNLOGGED TABLE dc_source (\n" +
+                "    tid     int8 NOT NULL,\n" +
+                "	pk_hash varchar(100) NULL,\n" +
+                "	column_hash varchar(100) NULL,\n" +
+                "	pk jsonb NULL,\n" +
+                "	compare_result bpchar(1) NULL,\n" +
+                "	CONSTRAINT dc_source_pk PRIMARY KEY (tid, pk_hash)\n" +
+                ") with (autovacuum_enabled=false, parallel_workers=" + Props.getProperty("stage-table-parallel") + ")";
 
         String stagingTable = String.format("dc_%s_%s_%s",location,tid,threadNbr);
 
@@ -179,10 +178,9 @@ public class RepoController {
         }
 
         if (check) {
-            sql += """ 
-                    AND (tid IN (SELECT tid FROM dc_target WHERE compare_result != 'e')
-                         OR  tid IN (SELECT tid FROM dc_source WHERE compare_result != 'e'))
-                   """;
+            sql += 
+                    " AND (tid IN (SELECT tid FROM dc_target WHERE compare_result != 'e')\n" +
+                    "         OR  tid IN (SELECT tid FROM dc_source WHERE compare_result != 'e'))";
         }
 
         sql += " ORDER BY table_alias";

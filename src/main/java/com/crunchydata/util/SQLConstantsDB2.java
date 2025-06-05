@@ -20,40 +20,37 @@ public interface SQLConstantsDB2 {
     //
     // DB2 SQL
     //
-    String SQL_DB2_SELECT_COLUMNS = """
-            SELECT trim(c.TABSCHEMA) AS owner,
-                   c.TABNAME AS table_name,
-                   c.COLNAME AS column_name,
-                   LOWER(c.TYPENAME) AS data_type,
-                   c.LENGTH AS data_length,
-                   COALESCE(c.length, 44) AS data_precision,
-                   COALESCE(c.SCALE, 22) AS data_scale,
-                   c.NULLS AS nullable,
-                   CASE WHEN pkc.COLNAME IS NULL THEN 'N' ELSE 'Y' END AS pk
-            FROM SYSCAT.COLUMNS c
-                 LEFT JOIN (SELECT k.TABSCHEMA, k.TABNAME, k.COLNAME
-                            FROM SYSCAT.KEYCOLUSE k
-                                 JOIN SYSCAT.TABCONST tc ON (k.CONSTNAME = tc.CONSTNAME AND tc.TYPE = 'P')
-                           ) pkc ON (c.TABSCHEMA = pkc.TABSCHEMA AND c.TABNAME = pkc.TABNAME AND c.COLNAME = pkc.COLNAME)
-            WHERE LOWER(c.TABSCHEMA) = LOWER(?)
-              AND LOWER(c.TABNAME) = LOWER(?)
-            ORDER BY c.TABSCHEMA, c.TABNAME, c.COLNAME
-           """;
+    String SQL_DB2_SELECT_COLUMNS = 
+            "SELECT trim(c.TABSCHEMA) AS owner,\n" +
+            "       c.TABNAME AS table_name,\n" +
+            "       c.COLNAME AS column_name,\n" +
+            "       LOWER(c.TYPENAME) AS data_type,\n" +
+            "       c.LENGTH AS data_length,\n" +
+            "       COALESCE(c.length, 44) AS data_precision,\n" +
+            "       COALESCE(c.SCALE, 22) AS data_scale,\n" +
+            "       c.NULLS AS nullable,\n" +
+            "       CASE WHEN pkc.COLNAME IS NULL THEN 'N' ELSE 'Y' END AS pk\n" +
+            "FROM SYSCAT.COLUMNS c\n" +
+            "     LEFT JOIN (SELECT k.TABSCHEMA, k.TABNAME, k.COLNAME\n" +
+            "                FROM SYSCAT.KEYCOLUSE k\n" +
+            "                     JOIN SYSCAT.TABCONST tc ON (k.CONSTNAME = tc.CONSTNAME AND tc.TYPE = 'P')\n" +
+            "               ) pkc ON (c.TABSCHEMA = pkc.TABSCHEMA AND c.TABNAME = pkc.TABNAME AND c.COLNAME = pkc.COLNAME)\n" +
+            "WHERE LOWER(c.TABSCHEMA) = LOWER(?)\n" +
+            "  AND LOWER(c.TABNAME) = LOWER(?)\n" +
+            "ORDER BY c.TABSCHEMA, c.TABNAME, c.COLNAME";
 
-    String SQL_DB2_SELECT_TABLES = """
-                SELECT trim(TABSCHEMA) AS owner, TABNAME AS table_name
-                FROM SYSCAT.TABLES
-                WHERE LOWER(TABSCHEMA) = LOWER(?)
-                ORDER BY TABSCHEMA, TABNAME
-                """;
+    String SQL_DB2_SELECT_TABLES = 
+                "SELECT trim(TABSCHEMA) AS owner, TABNAME AS table_name\n" +
+                "FROM SYSCAT.TABLES\n" +
+                "WHERE LOWER(TABSCHEMA) = LOWER(?)\n" +
+                "ORDER BY TABSCHEMA, TABNAME";
 
-    String SQL_DB2_SELECT_TABLE = """
-                SELECT trim(TABSCHEMA) AS owner, TABNAME AS table_name
-                FROM SYSCAT.TABLES
-                WHERE LOWER(TABSCHEMA) = LOWER(?)
-                      AND LOWER(TABNAME) = LOWER(?)
-                ORDER BY TABSCHEMA, TABNAME
-                """;
+    String SQL_DB2_SELECT_TABLE = 
+                "SELECT trim(TABSCHEMA) AS owner, TABNAME AS table_name\n" +
+                "FROM SYSCAT.TABLES\n" +
+                "WHERE LOWER(TABSCHEMA) = LOWER(?)\n" +
+                "      AND LOWER(TABNAME) = LOWER(?)\n" +
+                "ORDER BY TABSCHEMA, TABNAME";
 
     String SQL_DB2_SELECT_VERSION = "SELECT service_level AS version FROM SYSIBMADM.ENV_INST_INFO";
 

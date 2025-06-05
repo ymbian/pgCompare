@@ -121,15 +121,31 @@ public class TableController {
     }
 
     public static JSONArray getDatabaseTables (String databasePlatform, Connection conn, String schema, String table) {
-        return switch (databasePlatform) {
-            case "oracle" -> dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_ORACLE_SELECT_TABLES : SQL_ORACLE_SELECT_TABLE );
-            case "mariadb" -> dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_MARIADB_SELECT_TABLES : SQL_MARIADB_SELECT_TABLE);
-            case "mysql" -> dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_MYSQL_SELECT_TABLES : SQL_MYSQL_SELECT_TABLE);
-            case "mssql" -> dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_MSSQL_SELECT_TABLES : SQL_MSSQL_SELECT_TABLE);
-            case "db2" -> dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_DB2_SELECT_TABLES : SQL_DB2_SELECT_TABLE);
-            case "tdsql" -> dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_TDSQL_SELECT_TABLES : SQL_TDSQL_SELECT_TABLE);
-            default -> dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_POSTGRES_SELECT_TABLES : SQL_POSTGRES_SELECT_TABLE);
-        };
+        JSONArray result;
+        switch (databasePlatform) {
+            case "oracle":
+                result = dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_ORACLE_SELECT_TABLES : SQL_ORACLE_SELECT_TABLE);
+                break;
+            case "mariadb":
+                result = dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_MARIADB_SELECT_TABLES : SQL_MARIADB_SELECT_TABLE);
+                break;
+            case "mysql":
+                result = dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_MYSQL_SELECT_TABLES : SQL_MYSQL_SELECT_TABLE);
+                break;
+            case "mssql":
+                result = dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_MSSQL_SELECT_TABLES : SQL_MSSQL_SELECT_TABLE);
+                break;
+            case "db2":
+                result = dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_DB2_SELECT_TABLES : SQL_DB2_SELECT_TABLE);
+                break;
+            case "tdsql":
+                result = dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_TDSQL_SELECT_TABLES : SQL_TDSQL_SELECT_TABLE);
+                break;
+            default:
+                result = dbCommon.getTables(conn, schema, table, (table.isEmpty()) ? SQL_POSTGRES_SELECT_TABLES : SQL_POSTGRES_SELECT_TABLE);
+                break;
+        }
+        return result;
     }
 
 

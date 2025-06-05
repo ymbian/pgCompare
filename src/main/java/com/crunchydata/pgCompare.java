@@ -20,6 +20,7 @@ import java.sql.Connection;
 import javax.sql.rowset.CachedRowSet;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Arrays;
 
 import static com.crunchydata.controller.TableController.getTableMap;
 import static com.crunchydata.services.Reporter.createSection;
@@ -72,7 +73,12 @@ public class pgCompare {
         Logging.initialize(Props);
 
         // Catch Shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> Logging.write("info", THREAD_NAME, "Shutting down")));
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Logging.write("info", THREAD_NAME, "Shutting down");
+            }
+        }));
 
         // Capture the start time for the compare run.
         startStopWatch = System.currentTimeMillis();
@@ -103,10 +109,22 @@ public class pgCompare {
         // Sort and Output parameter settings
         Logging.write("info", THREAD_NAME, "Parameters: ");
 
-        Props.entrySet().stream()
-                .filter(e -> !e.getKey().toString().contains("password"))
-                .sorted((e1, e2) -> e1.getKey().toString().compareTo(e2.getKey().toString()))
-                .forEach(e -> Logging.write("info", THREAD_NAME, String.format("  %s",e)));
+        // Convert stream operations to traditional loop for Java 8 compatibility
+        java.util.List<java.util.Map.Entry<Object, Object>> sortedEntries = new java.util.ArrayList<>();
+        for (java.util.Map.Entry<Object, Object> entry : Props.entrySet()) {
+            if (!entry.getKey().toString().contains("password")) {
+                sortedEntries.add(entry);
+            }
+        }
+        java.util.Collections.sort(sortedEntries, new java.util.Comparator<java.util.Map.Entry<Object, Object>>() {
+            @Override
+            public int compare(java.util.Map.Entry<Object, Object> e1, java.util.Map.Entry<Object, Object> e2) {
+                return e1.getKey().toString().compareTo(e2.getKey().toString());
+            }
+        });
+        for (java.util.Map.Entry<Object, Object> entry : sortedEntries) {
+            Logging.write("info", THREAD_NAME, String.format("  %s", entry));
+        }
 
         // Initialize pgCompare repository if the action is init.
         // After initialization, exit.
@@ -172,15 +190,30 @@ public class pgCompare {
     private static Connection getDatabaseConnection(String dbType, String destRole) {
         Logging.write("info", THREAD_NAME, String.format("(%s) Connecting to database (type = %s, host = %s)", destRole, Props.getProperty(destRole+"-type"), Props.getProperty(destRole+"-host")));
 
-        Connection conn = switch (dbType) {
-            case "oracle" -> dbOracle.getConnection(Props, destRole);
-            case "mariadb" -> dbMariaDB.getConnection(Props, destRole);
-            case "mysql" -> dbMySQL.getConnection(Props, destRole);
-            case "mssql" -> dbMSSQL.getConnection(Props, destRole);
-            case "db2" -> dbDB2.getConnection(Props, destRole);
-            case "tdsql" -> dbTDSQL.getConnection(Props, destRole);
-            default -> dbPostgres.getConnection(Props, destRole, THREAD_NAME);
-        };
+        Connection conn;
+        switch (dbType) {
+            case "oracle":
+                conn = dbOracle.getConnection(Props, destRole);
+                break;
+            case "mariadb":
+                conn = dbMariaDB.getConnection(Props, destRole);
+                break;
+            case "mysql":
+                conn = dbMySQL.getConnection(Props, destRole);
+                break;
+            case "mssql":
+                conn = dbMSSQL.getConnection(Props, destRole);
+                break;
+            case "db2":
+                conn = dbDB2.getConnection(Props, destRole);
+                break;
+            case "tdsql":
+                conn = dbTDSQL.getConnection(Props, destRole);
+                break;
+            default:
+                conn = dbPostgres.getConnection(Props, destRole, THREAD_NAME);
+                break;
+        }
 
         if (conn == null) {
             Logging.write("severe", THREAD_NAME, String.format("Cannot connect to %s database", destRole));
@@ -396,7 +429,7 @@ public class pgCompare {
                         .put("rowsPerSecond", df.format(totalRows / elapsedTime));
 
 
-                JSONArray jobSummaryLayout = new JSONArray(List.of(
+                JSONArray jobSummaryLayout = new JSONArray(Arrays.asList(
                         createReportColumn("Tables Processed", "tablesProcessed", "right-align", false),
                         createReportColumn("Elapsed Time", "elapsedTime", "right-align", false),
                         createReportColumn("Rows per Second", "rowsPerSecond", "right-align", false),
@@ -405,7 +438,7 @@ public class pgCompare {
                 ));
 
 
-                JSONArray runResultLayout = new JSONArray(List.of(
+                JSONArray runResultLayout = new JSONArray(Arrays.asList(
                         createReportColumn("Table", "tableName", "left-align", false),
                         createReportColumn("Compare Status", "compareStatus", "left-align", false),
                         createReportColumn("Elapsed Time", "elapsedTime", "right-align", true),
@@ -422,7 +455,7 @@ public class pgCompare {
                         .put(createSection("Table Summary", runResult, runResultLayout)); // Pass runResult
 
                 if (check) {
-                    JSONArray runCheckResultLayout = new JSONArray(List.of(
+                    JSONArray runCheckResultLayout = new JSONArray(Arrays.asList(
                             createReportColumn("Primary Key", "pk", "left-align", false),
                             createReportColumn("Status", "compareStatus", "left-align", false),
                             createReportColumn("Result", "compareResult", "left-align", false)
@@ -448,7 +481,11 @@ public class pgCompare {
     // Print Summary
     //
     private static void printSummary(String message, int indent) {
-        Logging.write("info", "summary", " ".repeat(indent) + message);
+        StringBuilder spaces = new StringBuilder();
+        for (int i = 0; i < indent; i++) {
+            spaces.append(" ");
+        }
+        Logging.write("info", "summary", spaces.toString() + message);
     }
 
 

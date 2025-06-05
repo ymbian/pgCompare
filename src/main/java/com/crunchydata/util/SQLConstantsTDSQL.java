@@ -20,41 +20,38 @@ public interface SQLConstantsTDSQL {
     //
     // TDSQL SQL
     //
-    String SQL_TDSQL_SELECT_COLUMNS =  """
-                SELECT c.table_schema owner, c.table_name, c.column_name, c.data_type,
-                       coalesce(c.character_maximum_length,c.numeric_precision) data_length, coalesce(c.numeric_precision,44) data_precision, coalesce(c.numeric_scale,22) data_scale,
-                       case when c.is_nullable='YES' then 'Y' else 'N' end nullable,
-                       CASE WHEN pkc.column_name IS NULL THEN 'N' ELSE 'Y' END pk
-                FROM information_schema.columns c
-                     LEFT OUTER JOIN (SELECT tc.table_schema, tc.table_name, kcu.column_name, kcu.ORDINAL_POSITION column_position
-                	  				  FROM information_schema.table_constraints tc
-                					  	   INNER JOIN information_schema.key_column_usage kcu
-                								ON tc.constraint_catalog = kcu.constraint_catalog
-                									AND tc.constraint_schema = kcu.constraint_schema
-                									AND tc.constraint_name = kcu.constraint_name
-                									AND tc.table_name = kcu.table_name
-                					WHERE tc.constraint_type='PRIMARY KEY')  pkc ON (c.table_schema=pkc.table_schema AND c.table_name=pkc.table_name AND c.column_name=pkc.column_name)
-                WHERE lower(c.table_schema)=lower(?)
-                      AND lower(c.table_name)=lower(?)
-                ORDER BY c.table_schema, c.table_name, c.column_name
-                """;
+    String SQL_TDSQL_SELECT_COLUMNS = 
+                "SELECT c.table_schema owner, c.table_name, c.column_name, c.data_type,\n" +
+                "       coalesce(c.character_maximum_length,c.numeric_precision) data_length, coalesce(c.numeric_precision,44) data_precision, coalesce(c.numeric_scale,22) data_scale,\n" +
+                "       case when c.is_nullable='YES' then 'Y' else 'N' end nullable,\n" +
+                "       CASE WHEN pkc.column_name IS NULL THEN 'N' ELSE 'Y' END pk\n" +
+                "FROM information_schema.columns c\n" +
+                "     LEFT OUTER JOIN (SELECT tc.table_schema, tc.table_name, kcu.column_name, kcu.ORDINAL_POSITION column_position\n" +
+                "	  				  FROM information_schema.table_constraints tc\n" +
+                "					  	   INNER JOIN information_schema.key_column_usage kcu\n" +
+                "								ON tc.constraint_catalog = kcu.constraint_catalog\n" +
+                "									AND tc.constraint_schema = kcu.constraint_schema\n" +
+                "									AND tc.constraint_name = kcu.constraint_name\n" +
+                "									AND tc.table_name = kcu.table_name\n" +
+                "					WHERE tc.constraint_type='PRIMARY KEY')  pkc ON (c.table_schema=pkc.table_schema AND c.table_name=pkc.table_name AND c.column_name=pkc.column_name)\n" +
+                "WHERE lower(c.table_schema)=lower(?)\n" +
+                "      AND lower(c.table_name)=lower(?)\n" +
+                "ORDER BY c.table_schema, c.table_name, c.column_name";
 
-    String SQL_TDSQL_SELECT_TABLES = """
-                SELECT table_schema owner, table_name table_name
-                FROM  information_schema.tables
-                WHERE lower(table_schema)=lower(?)
-                      AND table_type = 'BASE TABLE'
-                ORDER BY table_schema, table_name
-                """;
+    String SQL_TDSQL_SELECT_TABLES = 
+                "SELECT table_schema owner, table_name table_name\n" +
+                "FROM  information_schema.tables\n" +
+                "WHERE lower(table_schema)=lower(?)\n" +
+                "      AND table_type = 'BASE TABLE'\n" +
+                "ORDER BY table_schema, table_name";
 
-    String SQL_TDSQL_SELECT_TABLE = """
-                SELECT table_schema owner, table_name table_name
-                FROM  information_schema.tables
-                WHERE lower(table_schema)=lower(?)
-                      AND table_type = 'BASE TABLE'
-                      AND lower(table_name) = lower(?)
-                ORDER BY table_schema, table_name
-                """;
+    String SQL_TDSQL_SELECT_TABLE = 
+                "SELECT table_schema owner, table_name table_name\n" +
+                "FROM  information_schema.tables\n" +
+                "WHERE lower(table_schema)=lower(?)\n" +
+                "      AND table_type = 'BASE TABLE'\n" +
+                "      AND lower(table_name) = lower(?)\n" +
+                "ORDER BY table_schema, table_name";
 
     String SQL_TDSQL_SELECT_VERSION = "select version()";
 }

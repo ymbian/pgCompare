@@ -20,33 +20,30 @@ public interface SQLConstantsOracle {
     //
     // Oracle SQL
     //
-    String SQL_ORACLE_SELECT_COLUMNS = """
-                SELECT c.owner, c.table_name, c.column_name, LOWER(c.data_type) data_type, c.data_length, nvl(c.data_precision,44) data_precision, nvl(c.data_scale,22) data_scale, c.nullable,
-                       CASE WHEN pkc.column_name IS NULL THEN 'N' ELSE 'Y' END pk
-                FROM all_tab_columns c
-                     LEFT OUTER JOIN (SELECT con.owner, con.table_name, i.column_name, i.column_position
-                                    FROM all_constraints con
-                                         JOIN all_ind_columns i ON (con.index_owner=i.index_owner AND con.index_name=i.index_name)
-                                    WHERE con.constraint_type='P') pkc ON (c.owner=pkc.owner AND c.table_name=pkc.table_name AND c.column_name=pkc.column_name)
-                WHERE lower(c.owner)=lower(?)
-                      AND lower(c.table_name)=lower(?)
-                ORDER BY c.owner, c.table_name, c.column_name
-                """;
+    String SQL_ORACLE_SELECT_COLUMNS = 
+                "SELECT c.owner, c.table_name, c.column_name, LOWER(c.data_type) data_type, c.data_length, nvl(c.data_precision,44) data_precision, nvl(c.data_scale,22) data_scale, c.nullable,\n" +
+                "       CASE WHEN pkc.column_name IS NULL THEN 'N' ELSE 'Y' END pk\n" +
+                "FROM all_tab_columns c\n" +
+                "     LEFT OUTER JOIN (SELECT con.owner, con.table_name, i.column_name, i.column_position\n" +
+                "                    FROM all_constraints con\n" +
+                "                         JOIN all_ind_columns i ON (con.index_owner=i.index_owner AND con.index_name=i.index_name)\n" +
+                "                    WHERE con.constraint_type='P') pkc ON (c.owner=pkc.owner AND c.table_name=pkc.table_name AND c.column_name=pkc.column_name)\n" +
+                "WHERE lower(c.owner)=lower(?)\n" +
+                "      AND lower(c.table_name)=lower(?)\n" +
+                "ORDER BY c.owner, c.table_name, c.column_name";
 
-    String SQL_ORACLE_SELECT_TABLES = """
-                SELECT owner, table_name
-                FROM all_tables
-                WHERE lower(owner)=lower(?)
-                ORDER BY owner, table_name
-                """;
+    String SQL_ORACLE_SELECT_TABLES = 
+                "SELECT owner, table_name\n" +
+                "FROM all_tables\n" +
+                "WHERE lower(owner)=lower(?)\n" +
+                "ORDER BY owner, table_name";
 
-    String SQL_ORACLE_SELECT_TABLE = """
-                SELECT owner, table_name
-                FROM all_tables
-                WHERE lower(owner)=lower(?)
-                      AND lower(table_name)=lower(?)
-                ORDER BY owner, table_name
-                """;
+    String SQL_ORACLE_SELECT_TABLE = 
+                "SELECT owner, table_name\n" +
+                "FROM all_tables\n" +
+                "WHERE lower(owner)=lower(?)\n" +
+                "      AND lower(table_name)=lower(?)\n" +
+                "ORDER BY owner, table_name";
 
     String SQL_ORACLE_SELECT_VERSION = "select version from v$version";
 

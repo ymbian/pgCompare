@@ -74,14 +74,28 @@ public class DataUtility {
     }
 
     public static String getNativeCase(String databasePlatform) {
-        return switch (databasePlatform) {
-            case "oracle" -> dbOracle.nativeCase;
-            case "mariadb" -> dbMariaDB.nativeCase;
-            case "mysql" -> dbMySQL.nativeCase;
-            case "mssql" -> dbMSSQL.nativeCase;
-            case "db2" -> dbDB2.nativeCase;
-            default -> dbPostgres.nativeCase;
-        };
+        String result;
+        switch (databasePlatform) {
+            case "oracle":
+                result = dbOracle.nativeCase;
+                break;
+            case "mariadb":
+                result = dbMariaDB.nativeCase;
+                break;
+            case "mysql":
+                result = dbMySQL.nativeCase;
+                break;
+            case "mssql":
+                result = dbMSSQL.nativeCase;
+                break;
+            case "db2":
+                result = dbDB2.nativeCase;
+                break;
+            default:
+                result = dbPostgres.nativeCase;
+                break;
+        }
+        return result;
     }
 
 

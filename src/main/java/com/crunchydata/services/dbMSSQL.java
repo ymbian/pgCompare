@@ -80,29 +80,38 @@ public class dbMSSQL {
         String columnName = ShouldQuoteString(column.getBoolean("preserveCase"), column.getString("columnName"));
 
         if ( Arrays.asList(numericTypes).contains(column.getString("dataType").toLowerCase()) ) {
-            colExpression = switch (column.getString("dataType").toLowerCase()) {
-                case "real", "float", "float4", "float8" ->
-                        "lower(replace(coalesce(trim(format(" + columnName + ",'E6')),' '),'E+0','e+'))";
-                default ->
-                        Props.getProperty("number-cast").equals("notation") ? "lower(replace(coalesce(trim(format(" + columnName + ",'E10')),' '),'E+0','e+'))"   : "coalesce(cast(format(" + columnName + ", '"+ Props.getProperty("standard-number-format") + "') as text),' ')";
-            };
+            switch (column.getString("dataType").toLowerCase()) {
+                case "real":
+                case "float":
+                case "float4":
+                case "float8":
+                    colExpression = "lower(replace(coalesce(trim(format(" + columnName + ",'E6')),' '),'E+0','e+'))";
+                    break;
+                default:
+                    colExpression = Props.getProperty("number-cast").equals("notation") ? "lower(replace(coalesce(trim(format(" + columnName + ",'E10')),' '),'E+0','e+'))"   : "coalesce(cast(format(" + columnName + ", '"+ Props.getProperty("standard-number-format") + "') as text),' ')";
+                    break;
+            }
         } else if ( Arrays.asList(booleanTypes).contains(column.getString("dataType").toLowerCase()) ) {
             colExpression = "case when coalesce(cast(" + columnName + " as varchar),'0') = 'true' then '1' else '0' end";
         } else if ( Arrays.asList(timestampTypes).contains(column.getString("dataType").toLowerCase()) ) {
-            colExpression = switch (column.getString("dataType").toLowerCase()) {
-                case "date" ->
-                        "coalesce(format(" + columnName + ",'MMddyyyyHHmmss'),' ')";
-                default ->
-                        "coalesce(format(" + columnName + " at time zone 'UTC','MMddyyyyHHmmss'),' ')";
-            };
+            switch (column.getString("dataType").toLowerCase()) {
+                case "date":
+                    colExpression = "coalesce(format(" + columnName + ",'MMddyyyyHHmmss'),' ')";
+                    break;
+                default:
+                    colExpression = "coalesce(format(" + columnName + " at time zone 'UTC','MMddyyyyHHmmss'),' ')";
+                    break;
+            }
         } else if ( Arrays.asList(charTypes).contains(column.getString("dataType").toLowerCase()) ) {
-            colExpression = switch (column.getString("dataType").toLowerCase()) {
+            switch (column.getString("dataType").toLowerCase()) {
                 // Cannot use trim on text data type.
-                case "text" ->
-                        "coalesce(" + columnName + ",' ')";
-                default ->
-                        column.getInt("dataLength") > 1 ? "case when len(" + columnName + ")=0 then ' ' else coalesce(rtrim(ltrim(" + columnName + ")),' ') end" :  "case when len(" + columnName + ")=0 then ' ' else rtrim(ltrim(" + columnName + ")) end";
-            };
+                case "text":
+                    colExpression = "coalesce(" + columnName + ",' ')";
+                    break;
+                default:
+                    colExpression = column.getInt("dataLength") > 1 ? "case when len(" + columnName + ")=0 then ' ' else coalesce(rtrim(ltrim(" + columnName + ")),' ') end" :  "case when len(" + columnName + ")=0 then ' ' else rtrim(ltrim(" + columnName + ")) end";
+                    break;
+            }
         } else {
             colExpression = "coalesce(" + columnName + ",' ')";
         }

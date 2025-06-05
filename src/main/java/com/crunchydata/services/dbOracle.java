@@ -78,12 +78,16 @@ public class dbOracle {
 
         if ( Arrays.asList(numericTypes).contains(column.getString("dataType").toLowerCase()) ) {
 
-            colExpression = switch (column.getString("dataType").toLowerCase()) {
-                case "float", "binary_float", "binary_double" ->
-                        "lower(nvl(trim(to_char(" +columnName + ",'0.999999EEEE')),' '))";
-                default ->
-                        Props.getProperty("number-cast").equals("notation") ? "lower(nvl(trim(to_char(" + columnName+ ",'0.9999999999EEEE')),' '))" : "nvl(trim(to_char(" + columnName+ ",'" + Props.getProperty("standard-number-format") + "')),' ')";
-            };
+            switch (column.getString("dataType").toLowerCase()) {
+                case "float":
+                case "binary_float":
+                case "binary_double":
+                    colExpression = "lower(nvl(trim(to_char(" +columnName + ",'0.999999EEEE')),' '))";
+                    break;
+                default:
+                    colExpression = Props.getProperty("number-cast").equals("notation") ? "lower(nvl(trim(to_char(" + columnName+ ",'0.9999999999EEEE')),' '))" : "nvl(trim(to_char(" + columnName+ ",'" + Props.getProperty("standard-number-format") + "')),' ')";
+                    break;
+            }
 
 
         } else if ( Arrays.asList(booleanTypes).contains(column.getString("dataType").toLowerCase()) ) {

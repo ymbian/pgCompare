@@ -147,15 +147,30 @@ public class ColumnUtility {
         JSONArray columnInfo = new JSONArray();
         String nativeCase = getNativeCase(Props.getProperty(destRole + "-type"));
 
-        String columnSQL = switch (Props.getProperty(destRole + "-type")) {
-            case "oracle" -> SQL_ORACLE_SELECT_COLUMNS;
-            case "mariadb" -> SQL_MARIADB_SELECT_COLUMNS;
-            case "mysql" -> SQL_MYSQL_SELECT_COLUMNS;
-            case "mssql" -> SQL_MSSQL_SELECT_COLUMNS;
-            case "db2" -> SQL_DB2_SELECT_COLUMNS;
-            case "tdsql" -> SQL_TDSQL_SELECT_COLUMNS;
-            default -> SQL_POSTGRES_SELECT_COLUMNS;
-        };
+        String columnSQL;
+        switch (Props.getProperty(destRole + "-type")) {
+            case "oracle":
+                columnSQL = SQL_ORACLE_SELECT_COLUMNS;
+                break;
+            case "mariadb":
+                columnSQL = SQL_MARIADB_SELECT_COLUMNS;
+                break;
+            case "mysql":
+                columnSQL = SQL_MYSQL_SELECT_COLUMNS;
+                break;
+            case "mssql":
+                columnSQL = SQL_MSSQL_SELECT_COLUMNS;
+                break;
+            case "db2":
+                columnSQL = SQL_DB2_SELECT_COLUMNS;
+                break;
+            case "tdsql":
+                columnSQL = SQL_TDSQL_SELECT_COLUMNS;
+                break;
+            default:
+                columnSQL = SQL_POSTGRES_SELECT_COLUMNS;
+                break;
+        }
 
 
                 try {
@@ -181,15 +196,30 @@ public class ColumnUtility {
                         column.put("dataClass", getDataClass(rs.getString("data_type").toLowerCase()));
                         column.put("preserveCase", preserveCase(nativeCase, rs.getString("column_name")));
 
-                        String valueExpression = switch (Props.getProperty(destRole + "-type")) {
-                            case "oracle" -> columnValueMapOracle(Props, column);
-                            case "mariadb" -> columnValueMapMariaDB(Props, column);
-                            case "mysql" -> columnValueMapMySQL(Props, column);
-                            case "mssql" -> columnValueMapMSSQL(Props, column);
-                            case "db2" -> columnValueMapDB2(Props, column);
-                            case "tdsql" -> columnValueMapTDSQL(Props, column);
-                            default -> columnValueMapPostgres(Props, column);
-                        };
+                        String valueExpression;
+                        switch (Props.getProperty(destRole + "-type")) {
+                            case "oracle":
+                                valueExpression = columnValueMapOracle(Props, column);
+                                break;
+                            case "mariadb":
+                                valueExpression = columnValueMapMariaDB(Props, column);
+                                break;
+                            case "mysql":
+                                valueExpression = columnValueMapMySQL(Props, column);
+                                break;
+                            case "mssql":
+                                valueExpression = columnValueMapMSSQL(Props, column);
+                                break;
+                            case "db2":
+                                valueExpression = columnValueMapDB2(Props, column);
+                                break;
+                            case "tdsql":
+                                valueExpression = columnValueMapTDSQL(Props, column);
+                                break;
+                            default:
+                                valueExpression = columnValueMapPostgres(Props, column);
+                                break;
+                        }
 
                         column.put("valueExpression", valueExpression);
 

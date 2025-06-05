@@ -60,7 +60,7 @@ public class ColumnController {
                             .append(concatOperator);
                     pkList.append(pkColumn).append(",");
 
-                    if (pkJSON.isEmpty()) {
+                    if (pkJSON.length() == 0) {
                         pkJSON.append("'{'").append(concatOperator);
                     } else {
                         pkJSON.append(concatOperator).append(" ',' ").append(concatOperator);
@@ -90,7 +90,7 @@ public class ColumnController {
 
             }
 
-            if (columnList.isEmpty()) {
+            if (columnList.length() == 0) {
                 column = new StringBuilder((useDatabaseHash) ? "'0'" : " '0' c1");
                 nbrColumns = 1;
             } else {
@@ -98,7 +98,7 @@ public class ColumnController {
                 column.setLength(column.length() - (column.substring(column.length() - 1).equals("|") ? 2 : 1));
             }
 
-            if (!pk.isEmpty() && !pkList.isEmpty()) {
+            if (pk.length() != 0 && pkList.length() != 0) {
                 pk.setLength(pk.length() - (3 + (concatOperator.length() * 2)));
                 pkList.setLength(pkList.length() - 1);
                 pkJSON.append(concatOperator).append("'}'");

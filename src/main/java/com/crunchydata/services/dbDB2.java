@@ -77,12 +77,18 @@ public class dbDB2 {
 
         if ( Arrays.asList(numericTypes).contains(column.getString("dataType").toLowerCase()) ) {
 
-            colExpression = switch (column.getString("dataType").toLowerCase()) {
-                case "real", "float", "binary_float", "binary_double", "double" ->
-                        scientificNotation(columnName);
-                default ->
-                        Props.getProperty("number-cast").equals("notation") ? scientificNotation(columnName) : "nvl(trim(to_char(" + columnName+ ", '" + Props.getProperty("standard-number-format") + "')),' ')";
-            };
+            switch (column.getString("dataType").toLowerCase()) {
+                case "real":
+                case "float":
+                case "binary_float":
+                case "binary_double":
+                case "double":
+                    colExpression = scientificNotation(columnName);
+                    break;
+                default:
+                    colExpression = Props.getProperty("number-cast").equals("notation") ? scientificNotation(columnName) : "nvl(trim(to_char(" + columnName+ ", '" + Props.getProperty("standard-number-format") + "')),' ')";
+                    break;
+            }
 
 
         } else if ( Arrays.asList(booleanTypes).contains(column.getString("dataType").toLowerCase()) ) {
