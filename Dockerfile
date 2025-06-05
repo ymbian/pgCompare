@@ -7,7 +7,7 @@
 # HOW TO BUILD THIS IMAGE
 # -----------------------
 # Compile code:
-#      $ mvn clean package
+#      $ mvn install
 # Build Docker Image:
 #      $ docker build -t {tag} .
 #
@@ -27,7 +27,7 @@ ENV _JAVA_OPTIONS=${JAVA_OPT}
 WORKDIR /app
 COPY . ./
 
-RUN mvn clean package -DskipTests
+RUN mvn clean install
 
 
 FROM ${BASE_REGISTRY}/${BASE_IMAGE}
@@ -38,19 +38,21 @@ USER 0
 RUN mkdir /opt/pgcompare \
     && chown -R 1001:1001 /opt/pgcompare
 
-COPY --from=builder /app/target/pgcompare.jar /opt/pgcompare/
-COPY --from=builder /app/pgcompare.properties /opt/pgcompare/
+COPY --from=builder /app/docker/start.sh /opt/pgcompare
+
+COPY --from=builder /app/docker/pgcompare.properties /etc/pgcompare/
+
+COPY --from=builder /app/target/* /opt/pgcompare/
+
+RUN chmod 770 /opt/pgcompare/start.sh
 
 USER 1001
 
-WORKDIR /opt/pgcompare
+ENV PGCOMPARE_HOME=/opt/pgcompare \
+    PGCOMPARE_CONFIG=/etc/pgcompare/pgcompare.properties \
+    PATH=/opt/pgcompare:$PATH \
+    _JAVA_OPTIONS=${JAVA_OPT}
 
-# 暴露Spring Boot应用端口
-EXPOSE 8080
+CMD ["start.sh"]
 
-# 设置健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8080/pgcompare/api/health || exit 1
-
-# Spring Boot启动命令
-ENTRYPOINT ["java", "-jar", "pgcompare.jar"]
+WORKDIR "/opt/pgcompare"
